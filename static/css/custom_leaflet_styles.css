@@ -1,0 +1,5 @@
+/* In static/css/admin_custom.css */
+
+.leaflet-control-attribution svg {
+    width: 0;
+}

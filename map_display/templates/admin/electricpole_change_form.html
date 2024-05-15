@@ -1,0 +1,46 @@
+<!-- In templates/admin/electricpole_change_form.html -->
+
+{% extends "admin/change_form.html" %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+    <script>
+        var map = document.getElementById("id_location_map");
+        var drawnItems = new L.FeatureGroup();
+        var mapInitiated = false;
+
+        function addPolyline(coordinates) {
+            var polyline = L.polyline(coordinates).addTo(drawnItems);
+            mapInitiated = true;
+        }
+
+        function onMapClick(e) {
+            if (mapInitiated) {
+                var polylineCoordinates = [];
+                drawnItems.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker) {
+                        polylineCoordinates.push(layer.getLatLng());
+                    }
+                });
+                polylineCoordinates.push(e.latlng);
+                drawnItems.clearLayers();
+                addPolyline(polylineCoordinates);
+            } else {
+                var marker = L.marker(e.latlng);
+                marker.addTo(drawnItems);
+            }
+        }
+
+        function initializeMap() {
+            var center = [11.6435, 124.4780]; // Center on Biliran Province
+            var map = L.map("id_location_map").setView(center, 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            map.on('click', onMapClick);
+            map.addLayer(drawnItems);
+        }
+
+        document.addEventListener("DOMContentLoaded", initializeMap);
+    </script>
+{% endblock %}

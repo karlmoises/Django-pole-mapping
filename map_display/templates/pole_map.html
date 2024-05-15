@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Electric Poles Map</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'leaflet/leaflet.css' %}">
+    <style>
+        #map { position: fixed; top: 0; bottom: 0; left: 0; right: 0; }
+        .leaflet-control-attribution svg {
+            width: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script>
+        var map = L.map('map').setView([11.585, 124.4849], 11);
+
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+        });
+
+        var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        dark.addTo(map);
+
+        var baseLayers = {
+            "Dark Map": dark,
+            "OpenStreetMap": osm
+        };
+
+        L.control.layers(baseLayers).addTo(map);
+
+        var connectionLines = L.layerGroup();
+
+        {% for connection in connections %}
+            var line = L.polyline([{{ connection.0 }}, {{ connection.1 }}], {color: 'red', opacity: 0}).addTo(connectionLines);
+        {% endfor %}
+
+        connectionLines.addTo(map);
+
+        {% for pole in electric_poles %}
+            var marker = L.circleMarker([{{ pole.latitude }}, {{ pole.longitude }}], {color: 'red', fillColor: 'red', fillOpacity: 1, radius: 5}).addTo(map);
+
+            var popupContent = "<b>Pole ID:</b> {{ pole.pole_ID }}<br><b>Location:</b> ({{ pole.latitude }}, {{ pole.longitude }})<br>";
+            popupContent += "<b>Installations:</b><br>";
+            {% for installation in pole.installations.all %}
+                popupContent += "{{ installation.installation_type }}: {{ installation.description }}<br>";
+            {% endfor %}
+            popupContent += "<b>Connected Poles (From):</b><br>";
+            {% for connection in pole.connections_to.all %}
+                popupContent += "{{ connection.pole_from.pole_ID }}<br>";
+            {% endfor %}
+            popupContent += "<b>Connected Poles (To):</b><br>";
+            {% for connection in pole.connections_from.all %}
+                popupContent += "{{ connection.pole_to.pole_ID }}<br>";
+            {% endfor %}
+
+            marker.bindPopup(popupContent);
+
+            marker.on('click', function(e) {
+                var poleId = {{ pole.id }};
+                var url = '/get-connected-poles/?pole_id=' + poleId;
+                fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    connectionLines.eachLayer(function(layer) {
+                        layer.setStyle({opacity: 0});
+                    });
+
+                    data.connected_poles_from.forEach(pole => {
+                        connectionLines.eachLayer(function(layer) {
+                            var latlngs = layer.getLatLngs();
+                            if ((latlngs[0].lat === pole.location.latitude && latlngs[0].lng === pole.location.longitude) ||
+                                (latlngs[1].lat === pole.location.latitude && latlngs[1].lng === pole.location.longitude)) {
+                                layer.setStyle({opacity: 1});
+                            }
+                        });
+                    });
+
+                    data.connected_poles_to.forEach(pole => {
+                        connectionLines.eachLayer(function(layer) {
+                            var latlngs = layer.getLatLngs();
+                            if ((latlngs[0].lat === pole.location.latitude && latlngs[0].lng === pole.location.longitude) ||
+                                (latlngs[1].lat === pole.location.latitude && latlngs[1].lng === pole.location.longitude)) {
+                                layer.setStyle({opacity: 1});
+                            }
+                        });
+                    });
+                });
+            });
+        {% endfor %}
+    </script>
+</body>
+</html>

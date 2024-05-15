@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Electric Lines Map</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'leaflet/leaflet.css' %}">
+    <style>
+        #map { position: fixed; top: 0; bottom: 0; left: 0; right: 0; }
+        .leaflet-control-attribution svg {
+            width: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script>
+        var map = L.map('map').setView([11.585, 124.4849], 11.5);
+        var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        dark.addTo(map);
+
+        // Create arrays to hold circle markers and lines
+        var markers = [];
+        var lines = {};
+
+        // Function to create circle markers
+        function createMarker(latlng, lineName) {
+            var marker = L.circleMarker(latlng, {radius: 5, color: 'red'}).addTo(map);
+            marker.data = lineName; // Attach data to marker
+            markers.push(marker);
+            return marker;
+        }
+
+        // Function to create lines between markers of the same line
+        function connectMarkers(lineName) {
+            var markersWithSameLine = markers.filter(function(marker) {
+                return marker.data === lineName;
+            });
+            for (var i = 0; i < markersWithSameLine.length - 1; i++) {
+                for (var j = i + 1; j < markersWithSameLine.length; j++) {
+                    var key = markersWithSameLine[i]._leaflet_id + '_' + markersWithSameLine[j]._leaflet_id;
+                    if (!(key in lines)) {
+                        var line = L.polyline([markersWithSameLine[i].getLatLng(), markersWithSameLine[j].getLatLng()], {color: 'red', opacity: 0}).addTo(map);
+                        lines[key] = line;
+                    }
+                }
+            }
+        }
+
+        // Assuming electric_lines is a variable containing ElectricLine queryset
+        {% for line in electric_lines %}
+            var lineCoordinates = JSON.parse('{{ line.path.geojson|escapejs }}').coordinates;
+            var lineName = '{{ line.name }}';
+
+            for (var i = 0; i < lineCoordinates.length; i++) {
+                var pointLatLng = [lineCoordinates[i][1], lineCoordinates[i][0]];
+                var marker = createMarker(pointLatLng, lineName);
+                marker.on('click', function(e) {
+                    Object.values(lines).forEach(function(line) {
+                        map.removeLayer(line);
+                    });
+                    connectMarkers(e.target.data);
+                    Object.values(lines).forEach(function(line) {
+                        line.setStyle({opacity: 1});
+                    });
+                });
+            }
+        {% endfor %}
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<!-- In admin templates (templates/admin/map_display/electricpole/change_form.html) -->
+{% extends "admin/change_form.html" %}
+
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'js/custom_admin.js' %}"></script>
+{% endblock %}

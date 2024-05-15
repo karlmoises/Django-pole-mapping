@@ -1,0 +1,36 @@
+<!-- templates/admin/electricpoles/electricpole/change_form.html -->
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'leaflet/leaflet.css' %}">
+    <style>
+        #map { height: 400px; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div id="map"></div>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script>
+        var map = L.map('map').setView([11.585, 124.4849], 11.5);
+        var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        dark.addTo(map);
+
+        // Add markers for ElectricPoles
+        {% for pole in original %}
+            var marker = L.marker([{{ pole.location.y }}, {{ pole.location.x }}]).addTo(map);
+            marker.bindPopup("{{ pole.name }}");
+        {% endfor %}
+    </script>
+{% endblock %}

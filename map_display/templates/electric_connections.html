@@ -1,0 +1,39 @@
+<!-- electric_connections.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Electric Connections</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'leaflet/leaflet.css' %}">
+    <style>
+        #map { height: 1000px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script>
+        var map = L.map('map').setView([11.585, 124.4849], 11.5);
+        var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        dark.addTo(map);
+
+        // Add markers for ElectricPoles
+        {% for pole in electric_poles %}
+            L.marker([{{ pole.location.y }}, {{ pole.location.x }}]).addTo(map)
+                .bindPopup("{{ pole.name }}");
+        {% endfor %}
+
+        // Event listener for marker click to select poles for connection
+        map.on('click', function(e) {
+            // Logic to handle pole selection and connection creation
+            // You can add your logic here to select poles and create connections
+            // For example, you can open a modal to prompt the user to select another pole to connect to
+        });
+    </script>
+</body>
+</html>
