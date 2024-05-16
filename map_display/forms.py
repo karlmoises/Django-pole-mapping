@@ -23,3 +23,8 @@ class ElectricPoleConnectionForm(forms.ModelForm):
     class Meta:
         model = ElectricPoleConnection
         fields = ['pole_from', 'pole_to']
+
+class ElectricPoleAdminForm(forms.ModelForm):
+    class Meta:
+        model = ElectricPole
+        fields = '__all__'

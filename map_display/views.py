@@ -1,8 +1,5 @@
-# In views.py
-
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import Point
 from django.http import JsonResponse
-from dal import autocomplete
 from django.shortcuts import render
 from .models import *
 
@@ -14,12 +11,13 @@ def electric_poles_map(request):
 
     for connection in electric_pole_connections:
         connection_line = [
-            [connection.pole_from.latitude, connection.pole_from.longitude],
-            [connection.pole_to.latitude, connection.pole_to.longitude]
+            [connection.pole_from.location.y, connection.pole_from.location.x],
+            [connection.pole_to.location.y, connection.pole_to.location.x]
         ]
         connections.append(connection_line)
 
     return render(request, 'pole_map.html', {'electric_poles': electric_poles, 'connections': connections})
+
 
 def get_connected_poles(request):
     pole_id = request.GET.get('pole_id')
@@ -30,17 +28,17 @@ def get_connected_poles(request):
         'id': connection.pole_to.id,
         'pole_ID': connection.pole_to.pole_ID,
         'location': {
-            'latitude': connection.pole_to.latitude,
-            'longitude': connection.pole_to.longitude
+            'x': connection.pole_to.location.x,
+            'y': connection.pole_to.location.y
         }
     } for connection in connections_from]
 
     connected_poles_to = [{
         'id': connection.pole_from.id,
         'pole_ID': connection.pole_from.pole_ID,
-        'location': {       
-            'latitude': connection.pole_from.latitude,
-            'longitude': connection.pole_from.longitude
+        'location': {
+            'x': connection.pole_from.location.x,
+            'y': connection.pole_from.location.y
         }
     } for connection in connections_to]
 

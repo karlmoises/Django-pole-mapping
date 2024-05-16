@@ -9,8 +9,7 @@ from django.contrib.gis.db import models as gis_models
 
 class ElectricPole(models.Model):
     pole_ID = models.CharField(max_length=100)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
+    location = models.PointField(null=True, blank=True)
 
     def __str__(self):
         return self.pole_ID

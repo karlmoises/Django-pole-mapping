@@ -145,14 +145,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # In settings.py
 
 LEAFLET_CONFIG = {
-    'DEFAULT_CENTER': (11.585, 124.4849),  # Biliran Province coordinates
-    'DEFAULT_ZOOM': 11,  # Adjust as needed
+    'DEFAULT_CENTER': (11.585, 124.4849), 
+    'DEFAULT_ZOOM': 11,  
     'MIN_ZOOM': 3,
     'MAX_ZOOM': 18,
     'DEFAULT_PRECISION': 6,
     'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     'CSS': {
-        'all': ['css/custom_leaflet_styles.css'],  # Relative path to your CSS file
+        'all': ['css/custom_leaflet_styles.css'],  
     },
 
 }
