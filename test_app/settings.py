@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'test_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'dbBileco',
+        'NAME': 'dbBileco_1',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',  # Set to your PostgreSQL server's host

@@ -59,7 +59,7 @@
             var popupContent = "<b>Pole ID:</b> {{ pole.pole_ID }}<br><b>Location:</b> {{ pole.location }}<br>";
             popupContent += "<b>Installed:</b><br>";
             {% for installation in pole.installations.all %}
-                popupContent += "{{ installation.installation_type }}: {{ installation.description }}<br>";
+                popupContent += "{{ installation.device }}: {{ installation.description }}<br>";
             {% endfor %}
             popupContent += "<b>Connected Poles (From):</b><br>";
             {% for connection in pole.connections_to.all %}

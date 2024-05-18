@@ -1,11 +1,13 @@
+# In admin.py
+
+from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.contrib.gis.geos import Point
 from leaflet.admin import LeafletGeoAdmin
 from import_export.admin import ImportExportModelAdmin
-from .models import *
-from .forms import *
-from .resources import *
-
+from .models import ElectricPole, PoleInstallation, ElectricPoleConnection, Device
+from .resources import ElectricPoleResource
 
 class PoleInstallationInline(admin.TabularInline):
     model = PoleInstallation
@@ -48,4 +50,5 @@ class ElectricPoleConnectionAdmin(ImportExportModelAdmin):
 
 admin.site.register(ElectricPoleConnection, ElectricPoleConnectionAdmin)
 
+admin.site.register(Device)
 admin.site.register(PoleInstallation)
